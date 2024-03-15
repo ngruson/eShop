@@ -29,3 +29,5 @@ jobs:
       run: dotnet build eShop.Web.slnf --no-restore
     - name: Test
       run: dotnet test eShop.Web.slnf --no-build --verbosity normal
+    - name: Build and push container images to ACR
+      run: az acr task run --registry ${{ secrets.ACR }} --name buildtask-catalogapi
