@@ -18,7 +18,9 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Update Workloads
-      run: dotnet workload update
+      run: |
+        dotnet workload update
+        dotnet workload restore
     - name: Install Workloads
       run: dotnet workload install aspire
     - name: Restore dependencies
