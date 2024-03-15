@@ -42,7 +42,9 @@ jobs:
         username: ${{ secrets.ACR_USERNAME }}
         password: ${{ secrets.ACR_PASSWORD }}
     - name: Push container images to ACR
-      run: docker push eshop/catalog.api:main
+      run: | 
+        docker tag eshop/catalog.api:main ${{ secrets.ACR_ENDPOINT }}/eshop/catalog.api:main
+        docker push ${{ secrets.ACR_ENDPOINT }}/eshop/catalog.api:main
     #- name: Login to Azure
     #  uses: azure/login@v1
     #  with:
