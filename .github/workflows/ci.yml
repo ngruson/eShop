@@ -24,8 +24,8 @@ jobs:
     - name: Install Workloads
       run: dotnet workload install aspire
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore src/Catalog.API/Catalog.API.csproj
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build src/Catalog.API/Catalog.API.csproj --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test src/Catalog.API/Catalog.API.csproj --no-build --verbosity normal
