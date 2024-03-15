@@ -33,7 +33,7 @@ jobs:
       run: dotnet build eShop.Web.slnf --no-restore
     - name: Test
       run: dotnet test eShop.Web.slnf --no-build --verbosity normal
-    - name: Build container image
+    - name: Build container images
       run: dotnet publish src/Catalog.API/Catalog.API.csproj  /t:PublishContainer -p ContainerRepository=eshop/catalog.api -p ContainerImageTag=main
     - name: Log into ACR
       uses: azure/docker-login@v1
@@ -41,6 +41,8 @@ jobs:
         login-server: ${{ secrets.ACR_ENDPOINT }}
         username: ${{ secrets.ACR_USERNAME }}
         password: ${{ secrets.ACR_PASSWORD }}
+    - name: Push container images to ACR
+      run: docker push eshop/catalog.api:main
     #- name: Login to Azure
     #  uses: azure/login@v1
     #  with:
