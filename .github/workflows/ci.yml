@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
-    
-permissions:
-  id-token: write
-  contents: read
   
 jobs:
   build:
@@ -34,7 +30,14 @@ jobs:
     - name: Test
       run: dotnet test eShop.Web.slnf --no-build --verbosity normal
     - name: Build container images
-      run: dotnet publish src/Catalog.API/Catalog.API.csproj  /t:PublishContainer -p ContainerRepository=eshop/catalog.api -p ContainerImageTag=main
+      run: | 
+        dotnet publish src/Basket.API/Basket.API.csproj /t:PublishContainer -p ContainerRepository=eshop/basket.api -p ContainerImageTag=main
+        dotnet publish src/Catalog.API/Catalog.API.csproj /t:PublishContainer -p ContainerRepository=eshop/catalog.api -p ContainerImageTag=main
+        dotnet publish src/Identity.API/Identity.API.csproj /t:PublishContainer -p ContainerRepository=eshop/identity.api -p ContainerImageTag=main
+        dotnet publish src/Ordering.API/Ordering.API.csproj /t:PublishContainer -p ContainerRepository=eshop/ordering.api -p ContainerImageTag=main
+        dotnet publish src/OrderProcessor/OrderProcessor.csproj /t:PublishContainer -p ContainerRepository=eshop/orderprocessor -p ContainerImageTag=main
+        dotnet publish src/PaymentProcessor/PaymentProcessor.csproj /t:PublishContainer -p ContainerRepository=eshop/paymentprocessor -p ContainerImageTag=main
+        dotnet publish src/WebApp/WebApp.csproj /t:PublishContainer -p ContainerRepository=eshop/webapp -p ContainerImageTag=main
     - name: Log into ACR
       uses: azure/docker-login@v1
       with:
@@ -43,13 +46,23 @@ jobs:
         password: ${{ secrets.ACR_PASSWORD }}
     - name: Push container images to ACR
       run: | 
+        docker tag eshop/basket.api:main ${{ secrets.ACR_ENDPOINT }}/eshop/basket.api:main
+        docker push ${{ secrets.ACR_ENDPOINT }}/eshop/basket.api:main
+
         docker tag eshop/catalog.api:main ${{ secrets.ACR_ENDPOINT }}/eshop/catalog.api:main
         docker push ${{ secrets.ACR_ENDPOINT }}/eshop/catalog.api:main
-    #- name: Login to Azure
-    #  uses: azure/login@v1
-    #  with:
-    #    client-id: ${{ secrets.AZURE_CLIENT_ID }}
-    #    tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-    #    subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-    # - name: Build and push container images to ACR
-    # run: az acr task run --registry ${{ secrets.ACR }} --name buildtask-catalogapi
+
+        docker tag eshop/identity.api:main ${{ secrets.ACR_ENDPOINT }}/eshop/identity.api:main
+        docker push ${{ secrets.ACR_ENDPOINT }}/eshop/identity.api:main
+
+        docker tag eshop/ordering.api:main ${{ secrets.ACR_ENDPOINT }}/eshop/ordering.api:main
+        docker push ${{ secrets.ACR_ENDPOINT }}/eshop/ordering.api:main
+
+        docker tag eshop/orderprocessor:main ${{ secrets.ACR_ENDPOINT }}/eshop/orderprocessor:main
+        docker push ${{ secrets.ACR_ENDPOINT }}/eshop/orderprocessor:main
+
+        docker tag eshop/paymentprocessor:main ${{ secrets.ACR_ENDPOINT }}/eshop/paymentprocessor:main
+        docker push ${{ secrets.ACR_ENDPOINT }}/eshop/paymentprocessor:main
+
+        docker tag eshop/webapp:main ${{ secrets.ACR_ENDPOINT }}/eshop/webapp:main
+        docker push ${{ secrets.ACR_ENDPOINT }}/eshop/webapp:main
