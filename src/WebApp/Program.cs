@@ -1,5 +1,12 @@
 ﻿var builder = WebApplication.CreateBuilder(args);
 
+var configFolder = builder.Configuration.GetValue<string>("ConfigurationFolder");
+if (!string.IsNullOrWhiteSpace(configFolder) &&
+  Directory.Exists(configFolder))
+{
+    builder.Configuration.AddKeyPerFile(configFolder, false, true);
+}
+
 builder.AddServiceDefaults();
 
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
