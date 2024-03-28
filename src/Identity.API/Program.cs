@@ -1,4 +1,15 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using Microsoft.IdentityModel.Logging;
+
+var builder = WebApplication.CreateBuilder(args);
+
+var configFolder = builder.Configuration.GetValue<string>("ConfigurationFolder");
+bool customConfig = false;
+if (!string.IsNullOrWhiteSpace(configFolder) &&
+  Directory.Exists(configFolder))
+{
+    customConfig = true;
+    builder.Configuration.AddKeyPerFile(configFolder, false, true);
+}
 
 builder.AddServiceDefaults();
 
@@ -36,6 +47,8 @@ builder.Services.AddIdentityServer(options =>
 // TODO: Not recommended for production - you need to store your key material somewhere secure
 .AddDeveloperSigningCredential();
 
+IdentityModelEventSource.ShowPII = true;
+
 builder.Services.AddTransient<IProfileService, ProfileService>();
 builder.Services.AddTransient<ILoginService<ApplicationUser>, EFLoginService>();
 builder.Services.AddTransient<IRedirectService, RedirectService>();
@@ -53,5 +66,16 @@ app.UseIdentityServer();
 app.UseAuthorization();
 
 app.MapDefaultControllerRoute();
+
+if (customConfig)
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation("Using custom configuration from {configFolder}", configFolder);
+}
+else
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation("NOT using custom configuration from {configFolder}", configFolder);
+}
 
 app.Run();
