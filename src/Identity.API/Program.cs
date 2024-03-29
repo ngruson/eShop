@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Duende.IdentityServer.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Logging;
 
@@ -30,8 +31,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 
 builder.Services.AddIdentityServer(options =>
 {
-    //options.IssuerUri = "null";
-    options.IssuerUri = builder.Configuration["IssuerUri"];
+    options.IssuerUri = "null";
+    //options.IssuerUri = builder.Configuration["IssuerUri"];
     options.Authentication.CookieLifetime = TimeSpan.FromHours(2);
 
     options.Events.RaiseErrorEvents = true;
@@ -58,27 +59,22 @@ builder.Services.AddTransient<IRedirectService, RedirectService>();
 
 var app = builder.Build();
 
-var forwardOptions = new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-    RequireHeaderSymmetry = false
-};
-forwardOptions.KnownNetworks.Clear();
-forwardOptions.KnownProxies.Clear();
+//var forwardOptions = new ForwardedHeadersOptions
+//{
+//    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+//    RequireHeaderSymmetry = false
+//};
+//forwardOptions.KnownNetworks.Clear();
+//forwardOptions.KnownProxies.Clear();
 
-ServicePointManager.Expect100Continue = true;
-ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls
-| SecurityProtocolType.Tls11
-| SecurityProtocolType.Tls12;
+//app.UseForwardedHeaders(forwardOptions);
 
-app.UseForwardedHeaders(forwardOptions);
-
-app.Use(async (context, next) =>
-{
-    context.Request.Scheme = "https";
-    context.Request.Host = new HostString("dev.myeshopdemo.com");
-    await next();
-});
+//app.Use(async (context, next) =>
+//{
+//    context.Request.Scheme = "https";
+//    context.Request.Host = new HostString("dev.myeshopdemo.com");
+//    await next();
+//});
 
 app.MapDefaultEndpoints();
 
@@ -88,6 +84,7 @@ app.UseStaticFiles();
 app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax });
 app.UseRouting();
 app.UseIdentityServer();
+app.UseMiddleware<BaseUrlMiddleware>();
 app.UseAuthorization();
 
 app.MapDefaultControllerRoute();
