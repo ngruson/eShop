@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Duende.IdentityServer.Hosting;
+using Identity.API;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Logging;
 
@@ -84,7 +85,7 @@ app.UseStaticFiles();
 app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax });
 app.UseRouting();
 app.UseIdentityServer();
-app.UseMiddleware<BaseUrlMiddleware>();
+app.UseMiddleware<IngressMiddleware>();
 app.UseAuthorization();
 
 app.MapDefaultControllerRoute();
