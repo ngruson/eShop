@@ -1,7 +1,4 @@
-﻿using System.Net;
-using Duende.IdentityServer.Hosting;
-using Identity.API;
-using Microsoft.AspNetCore.HttpOverrides;
+﻿using Identity.API;
 using Microsoft.IdentityModel.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,7 +30,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 builder.Services.AddIdentityServer(options =>
 {
     options.IssuerUri = "null";
-    //options.IssuerUri = builder.Configuration["IssuerUri"];
     options.Authentication.CookieLifetime = TimeSpan.FromHours(2);
 
     options.Events.RaiseErrorEvents = true;
@@ -60,6 +56,8 @@ builder.Services.AddTransient<IRedirectService, RedirectService>();
 
 var app = builder.Build();
 
+app.UseMiddleware<IngressMiddleware>();
+
 //var forwardOptions = new ForwardedHeadersOptions
 //{
 //    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
@@ -84,7 +82,6 @@ app.UseStaticFiles();
 // This cookie policy fixes login issues with Chrome 80+ using HTTP
 app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax });
 app.UseRouting();
-app.UseMiddleware<IngressMiddleware>();
 app.UseIdentityServer();
 app.UseAuthorization();
 

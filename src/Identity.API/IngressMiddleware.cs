@@ -6,7 +6,11 @@ public class IngressMiddleware(RequestDelegate next)
 
     public async Task Invoke(HttpContext context)
     {
-        context.RequestServices.GetRequiredService<IServerUrls>().BasePath = context.Request.PathBase.Value + "/identityapi";
+        var configuration = context.RequestServices.GetRequiredService<IConfiguration>();
+        if (configuration["Origin"] != null)
+        {
+            context.RequestServices.GetRequiredService<IServerUrls>().Origin = configuration["Origin"];
+        }
 
         await _next(context);
     }
