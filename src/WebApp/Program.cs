@@ -1,4 +1,6 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using Microsoft.IdentityModel.Logging;
+
+var builder = WebApplication.CreateBuilder(args);
 
 var configFolder = builder.Configuration.GetValue<string>("ConfigurationFolder");
 bool customConfig = false;
@@ -16,6 +18,8 @@ builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 builder.AddApplicationServices();
 
 var app = builder.Build();
+
+IdentityModelEventSource.ShowPII = true;
 
 app.MapDefaultEndpoints();
 
