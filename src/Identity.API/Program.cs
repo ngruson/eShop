@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.HttpOverrides;
+﻿using System.Net;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,6 +65,11 @@ var forwardOptions = new ForwardedHeadersOptions
 };
 forwardOptions.KnownNetworks.Clear();
 forwardOptions.KnownProxies.Clear();
+
+ServicePointManager.Expect100Continue = true;
+ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls
+| SecurityProtocolType.Tls11
+| SecurityProtocolType.Tls12;
 
 app.UseForwardedHeaders(forwardOptions);
 
