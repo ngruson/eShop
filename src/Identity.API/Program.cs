@@ -70,6 +70,7 @@ app.UseForwardedHeaders(forwardOptions);
 app.Use(async (context, next) =>
 {
     context.Request.Scheme = "https";
+    context.Request.Host = new HostString("dev.myeshopdemo.com");
     await next();
 });
 
