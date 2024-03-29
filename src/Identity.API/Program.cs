@@ -84,8 +84,8 @@ app.UseStaticFiles();
 // This cookie policy fixes login issues with Chrome 80+ using HTTP
 app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax });
 app.UseRouting();
-app.UseIdentityServer();
 app.UseMiddleware<IngressMiddleware>();
+app.UseIdentityServer();
 app.UseAuthorization();
 
 app.MapDefaultControllerRoute();
