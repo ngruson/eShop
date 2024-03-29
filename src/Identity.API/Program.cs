@@ -55,6 +55,14 @@ builder.Services.AddTransient<IRedirectService, RedirectService>();
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
+
+app.Use(async (context, next) =>
+{
+    context.Request.Scheme = "https";
+    await next();
+});
+
 app.MapDefaultEndpoints();
 
 app.UseStaticFiles();
