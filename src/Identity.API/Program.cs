@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Logging;
+﻿using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.IdentityModel.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,7 +57,11 @@ builder.Services.AddTransient<IRedirectService, RedirectService>();
 
 var app = builder.Build();
 
-app.UseForwardedHeaders();
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+    RequireHeaderSymmetry = false
+});
 
 app.Use(async (context, next) =>
 {
