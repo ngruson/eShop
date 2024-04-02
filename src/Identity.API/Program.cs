@@ -57,41 +57,41 @@ builder.Services.AddTransient<IRedirectService, RedirectService>();
 
 var app = builder.Build();
 
-app.UseMiddleware<IngressMiddleware>();
-
-//var forwardOptions = new ForwardedHeadersOptions
-//{
-//    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-//    RequireHeaderSymmetry = false
-//};
-//forwardOptions.KnownNetworks.Clear();
-//forwardOptions.KnownProxies.Clear();
-
-//app.UseForwardedHeaders(forwardOptions);
-
-//app.Use(async (context, next) =>
-//{
-//    context.Request.Scheme = "https";
-//    context.Request.Host = new HostString("dev.myeshopdemo.com");
-//    await next();
-//});
-
-app.MapDefaultEndpoints();
-
-app.UseStaticFiles();
-
-// This cookie policy fixes login issues with Chrome 80+ using HTTP
-app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax });
-
-if (app.Configuration["PathBase"] != null)
+app.Map("/identityapi", builder =>
 {
-    app.UsePathBase(app.Configuration["PathBase"]);
-}
-app.UseRouting();
-app.UseIdentityServer();
-app.UseAuthorization();
+    app.UseMiddleware<IngressMiddleware>();
 
-app.MapDefaultControllerRoute();
+    //var forwardOptions = new ForwardedHeadersOptions
+    //{
+    //    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+    //    RequireHeaderSymmetry = false
+    //};
+    //forwardOptions.KnownNetworks.Clear();
+    //forwardOptions.KnownProxies.Clear();
+
+    //app.UseForwardedHeaders(forwardOptions);
+
+    //app.Use(async (context, next) =>
+    //{
+    //    context.Request.Scheme = "https";
+    //    context.Request.Host = new HostString("dev.myeshopdemo.com");
+    //    await next();
+    //});
+
+    app.MapDefaultEndpoints();
+
+    app.UseStaticFiles();
+
+    // This cookie policy fixes login issues with Chrome 80+ using HTTP
+    app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax });
+
+    
+    app.UseRouting();
+    app.UseIdentityServer();
+    app.UseAuthorization();
+
+    app.MapDefaultControllerRoute();
+});
 
 if (customConfig)
 {
