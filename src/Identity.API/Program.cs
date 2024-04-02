@@ -2,6 +2,7 @@
 using Microsoft.IdentityModel.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddEnvironmentVariables();
 
 var configFolder = builder.Configuration.GetValue<string>("ConfigurationFolder");
 bool customConfig = false;
