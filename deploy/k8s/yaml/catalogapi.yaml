@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalogapi
+  labels:
+    app: catalogapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalogapi
+  template:
+    metadata:
+      labels:
+        app: catalogapi
+    spec:
+      containers:
+      - name: catalogapi
+        image: eshopacrnils.azurecr.io/eshop/catalog.api:main
+        ports:
+        - containerPort: 8080
+        env:
+          - name: OpenApi__Endpoint__Name
+            value: "Catalog.API V1"
+          - name: OpenApi__Document__Description
+            value: "The Catalog Microservice HTTP API. This is a Data-Driven/CRUD microservice sample"
+          - name: OpenApi__Document__Title
+            value: "eShop - Catalog HTTP API"
+          - name: OpenApi__Document__Version
+            value: "v1"
+          - name: ConnectionStrings__CatalogDB
+            valueFrom:
+              secretKeyRef:
+                name: secret-catalogapi
+                key: CONNECTIONSTRING__CATALOGDB
+          - name: ConnectionStrings__EventBus
+            value: amqp://rabbitmq
+          - name: EventBus__SubscriptionClientName
+            value: Catalog
+          - name: CatalogOptions__UseCustomizationData
+            value: "false"
+        resources:
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+          requests:
+            cpu: "0.5"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-api
+spec:
+  selector:
+    app: catalogapi
+  ports:
+    - port: 80
+      targetPort: 8080
+  # type: LoadBalancer

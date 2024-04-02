@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orderprocessor
+  labels:
+    app: orderprocessor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orderprocessor
+  template:
+    metadata:
+      labels:
+        app: orderprocessor
+    spec:
+      containers:
+      - name: orderprocessor
+        image: eshopacrnils.azurecr.io/eshop/orderprocessor:main
+        ports:
+        - containerPort: 8080
+        env:
+          - name: ConnectionStrings__EventBus
+            value: amqp://rabbitmq
+          - name: ConnectionStrings__OrderingDB
+            valueFrom:
+              secretKeyRef:
+                name: secret-orderprocessor
+                key: CONNECTIONSTRING__ORDERINGDB
+          - name: EventBus__SubscriptionClientName
+            value: OrderProcessor
+          - name: BackgroundTaskOptions__GracePeriodTime
+            value: "1"
+          - name: BackgroundTaskOptions__CheckUpdateTime
+            value: "30"
+        resources:
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+          requests:
+            cpu: "0.5"
+            memory: "256Mi"

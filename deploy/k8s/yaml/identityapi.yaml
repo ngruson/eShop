@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identityapi
+  labels:
+    app: identityapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: identityapi
+  template:
+    metadata:
+      labels:
+        app: identityapi
+    spec:
+      containers:
+      - name: identityapi
+        image: eshopacrnils.azurecr.io/eshop/identity.api:main
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+          - name: ASPNETCORE_FORWARDEDHEADERS_ENABLED
+            value: "true"
+          - name: DOTNET_USE_POLLING_FILE_WATCHER
+            value: "true"
+          - name: ConfigurationFolder
+            value: /app/config
+          - name: PathBase
+            value: /identityapi
+          - name: XamarinCallback
+            value: http://localhost:5105/xamarincallback
+          - name: UseCustomizationData
+            value: "false"
+          - name: TokenLifetimeMinutes
+            value: "120"
+          - name: PermanentTokenLifetimeDays
+            value: "365"
+          - name: ConnectionStrings__IdentityDB
+            valueFrom:
+              secretKeyRef:
+                name: secret-identityapi
+                key: CONNECTIONSTRING__IDENTITYDB
+          - name: BasketApiClient
+            value: http://basketapi
+          - name: OrderingApiClient
+            value: http://orderingapi
+          - name: WebhooksApiClient
+            value: http://webhooksapi
+          - name: WebhooksWebClient
+            value: http://webhookswebclient
+        volumeMounts:
+          - name: config-volume
+            mountPath: /app/config
+        resources:
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+          requests:
+            cpu: "0.5"
+            memory: "256Mi"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: configmap-identityapi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: identityapi
+spec:
+  selector:
+    app: identityapi
+  ports:
+    - port: 80
+      targetPort: 8080
+  #type: LoadBalancer

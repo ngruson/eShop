@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: basketapi
+  labels:
+    app: basketapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: basketapi
+  template:
+    metadata:
+      labels:
+        app: basketapi
+    spec:
+      containers:
+      - name: basketapi
+        image: eshopacrnils.azurecr.io/eshop/basket.api:main
+        ports:
+        - containerPort: 8080
+        env:
+          - name: Kestrel__EndpointDefaults__Protocols
+            value: Http2
+          - name: ConnectionStrings__Redis
+            value: redis
+          - name: ConnectionStrings__EventBus
+            value: amqp://rabbitmq
+          - name: Identity__Audience
+            value: basket
+          - name: EventBus__SubscriptionClientName
+            value: Basket
+          - name: Identity__Url
+            valueFrom:
+              configMapKeyRef:
+                name: configmap-basketapi
+                key: IdentityUrl
+        resources:
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+          requests:
+            cpu: "0.5"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: basket-api
+spec:
+  selector:
+    app: basketapi
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: LoadBalancer

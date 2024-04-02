@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  labels:
+    app: webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+      - name: webapp
+        image: eshopacrnils.azurecr.io/eshop/webapp:main
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+          - name: ASPNETCORE_ENVIRONMENT
+            value: Development
+          - name: ASPNETCORE_FORWARDEDHEADERS_ENABLED
+            value: "true"
+          - name: DOTNET_USE_POLLING_FILE_WATCHER
+            value: "true"
+          - name: ConfigurationFolder
+            value: /app/config
+          - name: ConnectionStrings__EventBus
+            value: amqp://rabbitmq
+          - name: EventBus__SubscriptionClientName
+            value: Ordering.webapp
+          - name: SessionCookieLifetimeMinutes
+            value: "60"
+        volumeMounts:
+          - name: config-volume
+            mountPath: /app/config
+        resources:
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+          requests:
+            cpu: "0.5"
+            memory: "256Mi"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: configmap-webapp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-service
+spec:
+  selector:
+    app: webapp
+  ports:
+    - port: 80
+      targetPort: 8080
+  #type: LoadBalancer

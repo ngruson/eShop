@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orderingapi
+  labels:
+    app: orderingapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orderingapi
+  template:
+    metadata:
+      labels:
+        app: orderingapi
+    spec:
+      containers:
+      - name: orderingapi
+        image: eshopacrnils.azurecr.io/eshop/ordering.api:main
+        ports:
+        - containerPort: 8080
+        env:
+          - name: OpenApi__Endpoint__Name
+            value: "Ordering.API V1"
+          - name: OpenApi__Document__Description
+            value: "The Ordering Service HTTP API"
+          - name: OpenApi__Document__Title
+            value: "eShop - Ordering HTTP API"
+          - name: OpenApi__Document__Version
+            value: "v1"
+          - name: Auth__ClientId
+            value: orderingswaggerui
+          - name: Auth__AppName
+            value: Ordering Swagger UI
+          - name: ConnectionStrings__OrderingDB
+            valueFrom:
+              secretKeyRef:
+                name: secret-orderingapi
+                key: CONNECTIONSTRING__ORDERINGDB
+          - name: ConnectionStrings__EventBus
+            value: amqp://rabbitmq
+          - name: EventBus__SubscriptionClientName
+            value: Ordering
+          - name: CatalogOptions__UseCustomizationData
+            value: "false"
+          - name: Identity__Audience
+            value: orders
+          - name: Identity__Scopes__orders
+            value: Ordering API
+          - name: Identity__Url
+            value: http://identityapi
+        resources:
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+          requests:
+            cpu: "0.5"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orderingapi-service
+spec:
+  selector:
+    app: orderingapi
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: LoadBalancer
