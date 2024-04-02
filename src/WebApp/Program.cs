@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Logging;
+﻿using Microsoft.Extensions.Primitives;
+using Microsoft.IdentityModel.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +40,17 @@ app.Use(async (context, next) =>
 {
     context.Request.Scheme = "https";
     await next();
+
+    if (context.Response.Headers.ContainsKey("Location"))
+    {
+        var location = context.Response.Headers.Location;
+        if (!location.Any(c => c!.Contains("redirect_uri=https")))
+        {
+            var newLocation = location.Select(c =>
+                c!.Replace("redirect_uri=http", "redirect_uri=https"));
+            context.Response.Headers.Location = new StringValues(newLocation.ToArray());
+        }
+    }
 });
 
 app.UseStaticFiles();
