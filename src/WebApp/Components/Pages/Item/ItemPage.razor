@@ -4,6 +4,7 @@
 @inject BasketState BasketState
 @inject NavigationManager Nav
 @inject IProductImageUrlProvider ProductImages
+@inject ILogger<ItemPage> Logger
 
 @if (item is not null)
 {
@@ -91,6 +92,7 @@ else if (notFound)
     {
         if (!isLoggedIn)
         {
+            Logger.LogInformation("Nav URI: {NavUri}", Nav.Uri);
             Nav.NavigateTo(Pages.User.LogIn.Url(Nav));
             return;
         }
