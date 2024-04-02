@@ -35,6 +35,12 @@ app.UseAntiforgery();
 
 //app.UseHttpsRedirection();
 
+app.Use(async (context, next) =>
+{
+    context.Request.Scheme = "https";
+    await next();
+});
+
 app.UseStaticFiles();
 
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
