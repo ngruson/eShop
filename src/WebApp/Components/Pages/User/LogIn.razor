@@ -16,5 +16,5 @@
     }
 
     public static string Url(NavigationManager nav)
-        => $"user/login?returnUrl={Uri.EscapeDataString(nav.ToBaseRelativePath(nav.Uri))}";
+        => $"user/login?returnUrl={Uri.EscapeDataString(nav.ToBaseRelativePath(nav.Uri.Replace("http", "https")))}";
 }
