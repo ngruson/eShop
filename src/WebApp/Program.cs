@@ -53,6 +53,8 @@ app.Use(async (context, next) =>
     }
 });
 
+app.UseForwardedHeaders();
+
 app.UseStaticFiles();
 
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
