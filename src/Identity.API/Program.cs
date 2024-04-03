@@ -1,5 +1,4 @@
 ﻿using Identity.API;
-using Microsoft.IdentityModel.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
@@ -49,49 +48,52 @@ builder.Services.AddIdentityServer(options =>
 // TODO: Not recommended for production - you need to store your key material somewhere secure
 .AddDeveloperSigningCredential();
 
-IdentityModelEventSource.ShowPII = true;
-
 builder.Services.AddTransient<IProfileService, ProfileService>();
 builder.Services.AddTransient<ILoginService<ApplicationUser>, EFLoginService>();
 builder.Services.AddTransient<IRedirectService, RedirectService>();
 
 var app = builder.Build();
 
-app.Map("/identityapi", builder =>
+app.UseMiddleware<IngressMiddleware>();
+
+//var forwardOptions = new ForwardedHeadersOptions
+//{
+//    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+//    RequireHeaderSymmetry = false
+//};
+//forwardOptions.KnownNetworks.Clear();
+//forwardOptions.KnownProxies.Clear();
+
+//app.UseForwardedHeaders(forwardOptions);
+
+//app.Use(async (context, next) =>
+//{
+//    context.Request.Scheme = "https";
+//    context.Request.Host = new HostString("dev.myeshopdemo.com");
+//    await next();
+//});
+
+app.MapDefaultEndpoints();
+
+var pathBase = app.Configuration["PathBase"];
+
+if (!string.IsNullOrWhiteSpace(pathBase))
 {
-    app.UseMiddleware<IngressMiddleware>();
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation("Using path base {pathBase}", pathBase);
+    app.UsePathBase($"/{pathBase.TrimStart('/')}");
+}
 
-    //var forwardOptions = new ForwardedHeadersOptions
-    //{
-    //    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-    //    RequireHeaderSymmetry = false
-    //};
-    //forwardOptions.KnownNetworks.Clear();
-    //forwardOptions.KnownProxies.Clear();
+app.UseStaticFiles();
 
-    //app.UseForwardedHeaders(forwardOptions);
+// This cookie policy fixes login issues with Chrome 80+ using HTTP
+app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax });
 
-    //app.Use(async (context, next) =>
-    //{
-    //    context.Request.Scheme = "https";
-    //    context.Request.Host = new HostString("dev.myeshopdemo.com");
-    //    await next();
-    //});
+app.UseRouting();
+app.UseIdentityServer();
+app.UseAuthorization();
 
-    app.MapDefaultEndpoints();
-
-    app.UseStaticFiles();
-
-    // This cookie policy fixes login issues with Chrome 80+ using HTTP
-    app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax });
-
-    
-    app.UseRouting();
-    app.UseIdentityServer();
-    app.UseAuthorization();
-
-    app.MapDefaultControllerRoute();
-});
+app.MapDefaultControllerRoute();
 
 if (customConfig)
 {
