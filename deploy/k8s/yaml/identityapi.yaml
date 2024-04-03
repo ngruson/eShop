@@ -28,7 +28,7 @@ spec:
           - name: ConfigurationFolder
             value: /app/config
           - name: PathBase
-            value: /identityapi
+            value: /identityapi/
           - name: XamarinCallback
             value: http://localhost:5105/xamarincallback
           - name: UseCustomizationData
