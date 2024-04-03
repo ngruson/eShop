@@ -76,14 +76,14 @@ app.UseForwardedHeaders(forwardOptions);
 
 app.MapDefaultEndpoints();
 
-var pathBase = app.Configuration["PathBase"];
+//var pathBase = app.Configuration["PathBase"];
 
-if (!string.IsNullOrWhiteSpace(pathBase))
-{
-    var logger = app.Services.GetRequiredService<ILogger<Program>>();
-    logger.LogInformation("Using path base {pathBase}", pathBase);
-    app.UsePathBase(new PathString(pathBase));
-}
+//if (!string.IsNullOrWhiteSpace(pathBase))
+//{
+//    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+//    logger.LogInformation("Using path base {pathBase}", pathBase);
+//    app.UsePathBase(new PathString(pathBase));
+//}
 
 app.UseStaticFiles();
 
