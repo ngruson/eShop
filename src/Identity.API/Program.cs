@@ -1,4 +1,5 @@
 ﻿using Identity.API;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,6 +49,10 @@ builder.Services.AddIdentityServer(options =>
 .AddAspNetIdentity<ApplicationUser>()
 // TODO: Not recommended for production - you need to store your key material somewhere secure
 .AddDeveloperSigningCredential();
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "dataProtection-keys")))
+    .SetApplicationName("Identity.API");
 
 builder.Services.AddTransient<IProfileService, ProfileService>();
 builder.Services.AddTransient<ILoginService<ApplicationUser>, EFLoginService>();
