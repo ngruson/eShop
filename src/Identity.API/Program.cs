@@ -1,4 +1,5 @@
 ﻿using Identity.API;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
@@ -56,15 +57,15 @@ var app = builder.Build();
 
 app.UseMiddleware<IngressMiddleware>();
 
-//var forwardOptions = new ForwardedHeadersOptions
-//{
-//    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-//    RequireHeaderSymmetry = false
-//};
-//forwardOptions.KnownNetworks.Clear();
-//forwardOptions.KnownProxies.Clear();
+var forwardOptions = new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+    RequireHeaderSymmetry = false
+};
+forwardOptions.KnownNetworks.Clear();
+forwardOptions.KnownProxies.Clear();
 
-//app.UseForwardedHeaders(forwardOptions);
+app.UseForwardedHeaders(forwardOptions);
 
 //app.Use(async (context, next) =>
 //{
