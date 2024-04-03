@@ -82,7 +82,7 @@ if (!string.IsNullOrWhiteSpace(pathBase))
 {
     var logger = app.Services.GetRequiredService<ILogger<Program>>();
     logger.LogInformation("Using path base {pathBase}", pathBase);
-    app.UsePathBase(pathBase);
+    app.UsePathBase(new PathString(pathBase));
 }
 
 app.UseStaticFiles();
