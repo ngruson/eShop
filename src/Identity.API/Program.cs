@@ -39,7 +39,7 @@ builder.Services.AddIdentityServer(options =>
     options.Events.RaiseSuccessEvents = true;
 
     // TODO: Remove this line in production.
-    options.KeyManagement.Enabled = false;
+    //options.KeyManagement.Enabled = false;
 })
 .AddInMemoryIdentityResources(Config.GetResources())
 .AddInMemoryApiScopes(Config.GetApiScopes())
@@ -67,23 +67,7 @@ forwardOptions.KnownProxies.Clear();
 
 app.UseForwardedHeaders(forwardOptions);
 
-//app.Use(async (context, next) =>
-//{
-//    context.Request.Scheme = "https";
-//    context.Request.Host = new HostString("dev.myeshopdemo.com");
-//    await next();
-//});
-
 app.MapDefaultEndpoints();
-
-//var pathBase = app.Configuration["PathBase"];
-
-//if (!string.IsNullOrWhiteSpace(pathBase))
-//{
-//    var logger = app.Services.GetRequiredService<ILogger<Program>>();
-//    logger.LogInformation("Using path base {pathBase}", pathBase);
-//    app.UsePathBase(new PathString(pathBase));
-//}
 
 app.UseStaticFiles();
 

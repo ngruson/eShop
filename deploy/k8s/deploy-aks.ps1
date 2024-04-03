@@ -86,7 +86,6 @@ kubectl create configmap configmap-webapp `
 # kubectl edit configmap configmap-webapp
 
 kubectl apply -f .\yaml\webapp.yaml
-# kubectl delete -f .\yaml\webapp.yaml
 
 # kubectl delete -f .\yaml\webapp.yaml
 # kubectl delete configmap configmap-webapp
