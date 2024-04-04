@@ -1,3 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: identityapi-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Mi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -47,7 +58,7 @@ spec:
           - name: BasketApiClient
             value: http://basketapi
           - name: OrderingApiClient
-            value: http://orderingapi
+            value: http://ordering-api
           - name: WebhooksApiClient
             value: http://webhooksapi
           - name: WebhooksWebClient
@@ -55,6 +66,10 @@ spec:
         volumeMounts:
           - name: config-volume
             mountPath: /app/config
+          - name: dataprotectionkeys-volume
+            mountPath: /app/dataProtection-keys
+          - name: dataprotectionkeys-volume
+            mountPath: /app/keys
         resources:
           limits:
             cpu: "1"
@@ -66,6 +81,11 @@ spec:
         - name: config-volume
           configMap:
             name: configmap-identityapi
+        - name: dataprotectionkeys-volume
+          persistentVolumeClaim:
+            claimName: identityapi-pvc
+      securityContext:
+        fsGroup: 1654
 ---
 apiVersion: v1
 kind: Service

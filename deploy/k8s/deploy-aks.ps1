@@ -1,5 +1,6 @@
 # Ingress DNS
 $ingress = "https://dev.myeshopdemo.com"
+echo $ingress
 
 # RabbitMQ
 kubectl create -f .\yaml\rabbitmq.yaml
@@ -42,6 +43,7 @@ kubectl apply -f .\yaml\identityapi.yaml
 # kubectl delete -f .\yaml\identityapi.yaml
 # kubectl delete secret secret-identityapi
 # kubectl delete cm configmap-identityapi
+# kubectl edit cm configmap-identityapi
 
 kubectl describe cm configmap-identityapi
 
@@ -54,6 +56,9 @@ kubectl create -f .\yaml\basketapi.yaml
 # kubectl delete -f .\yaml\basketapi.yaml
 
 # Ordering API
+
+kubectl create configmap configmap-orderingapi `
+    --from-literal=IdentityUrl=$ingress/identityapi
 
 $connectionString = "Host=postgres;Database=OrderingDB;Username=postgres;Password=$postgresPassword"
 kubectl create secret generic secret-orderingapi --from-literal=CONNECTIONSTRING__ORDERINGDB=$connectionString

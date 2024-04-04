@@ -48,7 +48,10 @@ spec:
           - name: Identity__Scopes__orders
             value: Ordering API
           - name: Identity__Url
-            value: http://identityapi
+            valueFrom: 
+              configMapKeyRef:
+                name: configmap-orderingapi
+                key: IdentityUrl
         resources:
           limits:
             cpu: "1"
@@ -60,11 +63,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: orderingapi-service
+  name: ordering-api
 spec:
   selector:
     app: orderingapi
   ports:
     - port: 80
       targetPort: 8080
-  type: LoadBalancer
+  #type: LoadBalancer
